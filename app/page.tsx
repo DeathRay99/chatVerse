@@ -14,7 +14,11 @@ export default function Home() {
           <span className="text-indigo-600">Let AI handle the translation</span>
         </p>
         <div className="flex gap-4 items-center">
-          <Button className="bg-indigo-600 hover:bg-indigo-500 text-white"> Get started</Button>
+          <Link href="/chat" className="text-sm">
+            <Button className="bg-indigo-600 hover:bg-indigo-500 text-white">
+              Get Started
+            </Button>
+          </Link>
           <Link href="/pricing" className="text-sm">
             View Pricing →
           </Link>

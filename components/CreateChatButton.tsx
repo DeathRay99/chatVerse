@@ -7,8 +7,12 @@ import { useSession } from "next-auth/react";
 import { useSubscriptionStore } from "@/store/store";
 import { useToast } from "./ui/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import { serverTimestamp, setDoc } from "firebase/firestore";
-import { addChatRef } from "@/lib/converters/ChatMembers";
+import { getDocs, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  addChatRef,
+  chatMembersCollectionGroupRef,
+} from "@/lib/converters/ChatMembers";
+import { ToastAction } from "./ui/toast";
 function CreateChatButton({ isLarge }: { isLarge?: boolean }) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -24,7 +28,31 @@ function CreateChatButton({ isLarge }: { isLarge?: boolean }) {
       description: "Hold tight while we create your new chat...",
       duration: 3000,
     });
+    //check if user is PRO and limit them creating a new chat
+    const noOfChats = (
+      await getDocs(chatMembersCollectionGroupRef(session.user.id))
+    ).docs.map((doc) => doc.data()).length;
 
+    //check if user is about to exceed free plan which is 3 chats
+    const isPro =
+      subscription?.role === "pro" && subscription.status === "active";
+    if (!isPro && noOfChats >= 3) {
+      toast({
+        title: "Free plan limit exceeded",
+        description:
+          "you've exceeded the limit of chats for FREE plan. Please upgrade to PRO to continue adding users to chats!",
+        variant: "destructive",
+        action: (
+          <ToastAction
+            altText="Upgrade"
+            onClick={() => router.push("/register")}
+          >
+            Upgrade to PRO
+          </ToastAction>
+        ),
+      });
+      return;
+    }
     const chatId = uuidv4();
 
     try {
@@ -36,7 +64,7 @@ function CreateChatButton({ isLarge }: { isLarge?: boolean }) {
         chatId: chatId,
         image: session.user.image || "",
       });
-    
+
       toast({
         title: "Success",
         description: "Your chat has been created!",
@@ -47,12 +75,11 @@ function CreateChatButton({ isLarge }: { isLarge?: boolean }) {
       toast({
         title: "Error",
         description: "There was an error creating your chat!",
-        variant:"destructive",
+        variant: "destructive",
       });
-    } finally{
+    } finally {
       setLoading(false);
     }
-    
 
     router.push(`/chat/${chatId}`);
   };

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { addDoc, getDocs, query, serverTimestamp, where } from "firebase/firestore";
 import {
   User,
   limitedMessagesRef,
@@ -43,9 +43,9 @@ function ChatInput({ chatId }: { chatId: string }) {
       return;
     }
 
-    //check in user is pro and limit creating a new chat
-
-    const messages = (await getDocs(limitedMessagesRef(chatId))).docs.map(
+    //check if user is pro and limit sending more messages
+    const q = query(limitedMessagesRef(chatId), where("user.email", "==", session.user.email));
+    const messages = (await getDocs(q)).docs.map(
       (doc) => doc.data()
     ).length;
 
@@ -67,6 +67,7 @@ function ChatInput({ chatId }: { chatId: string }) {
           </ToastAction>
         ),
       });
+      return;
     }
 
     const userToStore: User = {
