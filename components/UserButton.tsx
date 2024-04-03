@@ -16,7 +16,7 @@ import { StarIcon } from "lucide-react";
 import { useSubscriptionStore } from "@/store/store";
 import ManageAccountButton from "./ManageAccountButton";
 
-function UserButton({ session }: { session: Session | null }) {
+function UserButton({ session }: { session: any | null }) {
   const subscription = useSubscriptionStore((state) => state.subscription);
   if (!session) {
     return (

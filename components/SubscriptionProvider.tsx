@@ -23,7 +23,7 @@ function SubscriptionProvider({children}:{children:React.ReactNode}) {
           return;
         } else {
           console.log("user has subscription");
-          setSubscription(snapshot.docs[0]?.data());
+          setSubscription(snapshot.docs[0]?.data() as any);
         }
       },
       (error) => {
