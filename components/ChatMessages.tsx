@@ -14,7 +14,7 @@ function ChatMessages({
   session,
 }: {
   chatId: string;
-  initialMesssages: Message[];
+  initialMessages: Message[];
   session: Session | null;
 }) {
   const language = useLanguageStore((state) => state.language);
